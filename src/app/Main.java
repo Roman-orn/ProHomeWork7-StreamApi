@@ -16,30 +16,26 @@ public class Main {
                 new Product("Phone", "Electronics", 500.0)
         );
 
-        Map<String, List<Product>> groupedIntoCategory = products.stream()
+        Map<String, List<Product>> productsByCategory = products.stream()
                 .collect(Collectors.groupingBy(Product::getCategory));
 
         System.out.println("1) List products by category");
-        groupedIntoCategory.forEach((category, productsList) -> {
+        productsByCategory.forEach((category, productsList) -> {
             System.out.format("%s:%n", category);
             productsList.forEach(product -> System.out.format("\t%s%n", product.getName()));
         });
 
-        System.out.println("\n2) Average cost of goods in each category");
-        groupedIntoCategory.forEach((category, listProducts) -> {
-            System.out.format("%s: ", category);
-            double averageCost = listProducts.stream()
-                    .collect(Collectors.averagingDouble(Product::getPrice));
-            System.out.format("%.2f%n", averageCost);
+        Map<String, Double> averagePriceByCategory = products.stream()
+                .collect(Collectors.groupingBy(Product::getCategory,
+                        Collectors.averagingDouble(Product::getPrice))
+                );
+
+        System.out.println("\n2) Print average cost for each category");
+        averagePriceByCategory.forEach((category, price) -> {
+            System.out.printf("%s: %.2f%n", category, price);
         });
 
-        System.out.println("\n3) Category of goods with the highest average price");
-        Map<String, Double> averagePriceByCategory = products.stream()
-                .collect(Collectors.groupingBy(
-                        Product::getCategory,
-                        Collectors.averagingDouble(Product::getPrice)
-                ));
-
+        System.out.println("\n3) Find category with max average price");
         averagePriceByCategory.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .ifPresent(entry -> {
